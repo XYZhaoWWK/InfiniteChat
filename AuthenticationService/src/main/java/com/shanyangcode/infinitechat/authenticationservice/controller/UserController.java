@@ -6,8 +6,6 @@ import com.shanyangcode.infinitechat.authenticationservice.data.user.login.Login
 import com.shanyangcode.infinitechat.authenticationservice.data.user.login.LoginResponse;
 import com.shanyangcode.infinitechat.authenticationservice.data.user.register.RegisterRequest;
 import com.shanyangcode.infinitechat.authenticationservice.data.user.register.RegisterResponse;
-import com.shanyangcode.infinitechat.authenticationservice.model.User;
-import com.shanyangcode.infinitechat.authenticationservice.service.EmailService;
 import com.shanyangcode.infinitechat.authenticationservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

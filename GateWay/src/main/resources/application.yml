@@ -25,15 +25,16 @@ spring:
               - "POST"
               - "PUT"
               - "DELETE"
+              - "PATCH"
               - "OPTIONS"
             allowedHeaders: "*"
             allowCredentials: true
             maxAge: 36000
       routes:
-        - id: query_router
-          uri: lb://AuthenticationService
-          predicates:
-            - Path=/api/v1/user/**
+#        - id: query_router
+#          uri: lb://AuthenticationService
+#          predicates:
+#            - Path=/api/v1/user/**
         #
         #        - id: cookie_route
         #          uri: https://qq.com
@@ -46,12 +47,12 @@ spring:
         #            - Header=X-Request-Id, \d+
 
 #        # 登录认证服务
-#        - id: AuthenticationService
-#          uri: lb://AuthenticationService
-#          # uri: http://localhost:8082
-#          predicates:
-#            - Path=/api/v1/user/**
-#            # - After=2026-01-20T17:42:47.789-07:00[America/Denver]
-#          filters:
-#            - AddRequestHeader=X-Request-Source, InfiniteChat-GateWay
-#            - AddResponseHeader=X-Response-Source, InfiniteChat-GateWay
+        - id: AuthenticationService
+          uri: lb://AuthenticationService
+          # uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/user/**
+            # - After=2026-01-20T17:42:47.789-07:00[America/Denver]
+          filters:
+            - AddRequestHeader=X-Request-Source, InfiniteChat-GateWay
+            - AddResponseHeader=X-Response-Source, InfiniteChat-GateWay
