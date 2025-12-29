@@ -1,0 +1,19 @@
+package com.shanyangcode.infinitechat.authenticationservice.constants.common;
+
+import lombok.Getter;
+
+@Getter
+public enum TimeOutEnum {
+
+    JWT_TIME_OUT("token time out(day)", "jwt", 24);
+
+    private final String name;
+    private final String prefix;
+    private final long timeOut;
+
+    TimeOutEnum(String name, String prefix, long timeOut) {
+        this.name = name;
+        this.prefix = prefix;
+        this.timeOut = timeOut;
+    }
+}
