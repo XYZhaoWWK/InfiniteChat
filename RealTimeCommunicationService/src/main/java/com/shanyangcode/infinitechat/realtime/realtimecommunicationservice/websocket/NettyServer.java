@@ -53,6 +53,7 @@ public class NettyServer {
                         pipeline.addLast(new HttpServerCodec());
                         pipeline.addLast(new ChunkedWriteHandler());
                         pipeline.addLast(new HttpObjectAggregator(8192));
+                        pipeline.addLast(new WebSocketTokenAuthHead());
                         pipeline.addLast(new WebSocketServerProtocolHandler("/"));
                         pipeline.addLast(new MessageInboundHandler());
                     }

@@ -19,7 +19,7 @@ public class ChannelManager {
         USER_CHANNEL_MAP.remove(userUuid);
     }
 
-    public static Channel getUserChannel(String userUuid){
+    public static Channel getChannelByUserId(String userUuid){
         return USER_CHANNEL_MAP.get(userUuid);
     }
 

@@ -3,6 +3,9 @@ package com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.webs
 import cn.hutool.json.JSONUtil;
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.constants.MessageTypeEnum;
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.model.MessageDTO;
+import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -54,7 +57,27 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
         }
 //        处理握手，协议升级
         if(evt instanceof WebSocketServerProtocolHandler.HandshakeComplete){
+            String token = NettyUtils.getAttr(ctx.channel(), NettyUtils.TOKEN);
+            String userUuid = NettyUtils.getAttr(ctx.channel(), NettyUtils.UID);
 
+            if(!validateToken(userUuid, token)){
+                log.info("Token invalid");
+                ctx.close();
+                return;
+            }
+
+// 存储用户的管道信息
+            Channel channel = ChannelManager.getChannelByUserId(userUuid);
+            if (channel != null) {
+                ChannelManager.removeUserChannel(userUuid);
+                ChannelManager.removeChannelUser(channel);
+                channel.close();
+            }
+
+            // 在将新的 channel 放入到其中
+            ChannelManager.addUserChannel(userUuid, ctx.channel());
+            ChannelManager.addChannelUser(userUuid, ctx.channel());
+            log.info("客户连接成功， 用户ID：{}",userUuid + "管道地址： " + ctx.channel().remoteAddress());
         }
     }
 
@@ -73,6 +96,15 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
                 ctx.channel().close();
             }
         }
+    }
+
+    private boolean validateToken(String userUuid, String token){
+        Claims claims = JwtUtil.parse(token);
+        String userId = claims.getSubject();
+        if(userId == null || !userId.equals(userUuid)){
+            return false;
+        }
+        return true;
     }
 
 }
