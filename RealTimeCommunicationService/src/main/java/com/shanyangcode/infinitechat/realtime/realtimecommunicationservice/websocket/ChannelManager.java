@@ -10,7 +10,6 @@ public class ChannelManager {
 
     private static final ConcurrentHashMap<Channel, String> CHANNEL_USER_MAP = new ConcurrentHashMap<Channel, String>();
 
-
     public static void addUserChannel(String userUuid, Channel channel){
         USER_CHANNEL_MAP.put(userUuid, channel);
     }

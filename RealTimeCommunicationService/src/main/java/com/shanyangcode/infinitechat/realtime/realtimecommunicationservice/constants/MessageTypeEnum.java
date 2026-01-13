@@ -17,7 +17,7 @@ public enum MessageTypeEnum {
     }
 
     public static MessageTypeEnum of(Integer type){
-        switch (type){
+        switch (type) {
             case 1:
                 return MessageTypeEnum.ACK;
             case 2:

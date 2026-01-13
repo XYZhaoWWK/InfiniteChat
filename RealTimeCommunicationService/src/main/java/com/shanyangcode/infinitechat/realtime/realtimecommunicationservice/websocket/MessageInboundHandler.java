@@ -2,6 +2,10 @@ package com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.webs
 
 import cn.hutool.json.JSONUtil;
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.constants.MessageTypeEnum;
+import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.excption.MessageTypeException;
+import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.model.AckData;
+import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.model.LogOutData;
+
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.model.MessageDTO;
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -18,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Sharable
 public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+//    客户端发一条聊天json时触发这个
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         log.info("服务端收到消息：{}", msg.text());
@@ -25,21 +30,51 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
         MessageTypeEnum messageTypeEnum = MessageTypeEnum.of(messageDTO.getType());
         switch (messageTypeEnum){
             case ACK:
-
+                processACK(messageDTO);
             case LOG_OUT:
-
+                processLogOut(ctx, messageDTO);
             case HEART_BEAT:
-
+                processHeartBeat(ctx, messageDTO);
             default:
+                processIllegal(messageDTO);
         }
 
     }
+    private void processACK(MessageDTO msg){
+        // 处理客户端成功返回的数据
+        AckData ackData = JSONUtil.toBean(msg.getData().toString(), AckData.class);
+        log.info("ackData:{}",ackData);
+        log.info("推送消息成功！");
+    }
 
+    private void processLogOut(ChannelHandlerContext ctx, MessageDTO msg){
+        LogOutData logOutData = JSONUtil.toBean(msg.getData().toString(), LogOutData.class);
+        Integer userUuid = logOutData.getUserUuid();
+        log.info("请求断开用户{}的连接...",userUuid);
+        offline(ctx);
+        log.info("断开连接成功！");
+    }
+
+    private void processHeartBeat(ChannelHandlerContext ctx, MessageDTO msg){
+        log.info("收到心跳包");
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setType(MessageTypeEnum.HEART_BEAT.getCode());
+        TextWebSocketFrame frame = new TextWebSocketFrame(JSONUtil.toJsonStr(messageDTO));
+        ctx.channel().writeAndFlush(frame);
+    }
+
+    private void processIllegal(MessageDTO msg){
+        throw new MessageTypeException("不支持的消息格式！");
+    }
+
+
+    //    客户端tcp连接成功时触发这个
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("websocket has build");
     }
 
+//    完成协议升级以及心跳断了时触发这个
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
 //        处理心跳
@@ -49,10 +84,13 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
                 case READER_IDLE:
                     log.error("读空闲超时......关闭连接...{}, 用户ID{}", ctx.channel().remoteAddress(), ChannelManager.getChannelUser(ctx.channel()));
                     offline(ctx);
+                    break;
                 case WRITER_IDLE:
                     log.error("写空闲超时");
+                    break;
                 case ALL_IDLE:
                     log.error("读写空闲超时");
+                    break;
             }
         }
 //        处理握手，协议升级
@@ -68,6 +106,7 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
 
 // 存储用户的管道信息
             Channel channel = ChannelManager.getChannelByUserId(userUuid);
+//            如果已经有连接了就顶下线
             if (channel != null) {
                 ChannelManager.removeUserChannel(userUuid);
                 ChannelManager.removeChannelUser(channel);
