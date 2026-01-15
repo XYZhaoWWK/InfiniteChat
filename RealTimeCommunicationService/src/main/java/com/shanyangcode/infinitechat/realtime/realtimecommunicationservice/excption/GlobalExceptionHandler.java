@@ -1,6 +1,6 @@
 package com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.excption;
 
-import com.shanyangcode.infinitechat.realtimecommunicationservice.common.Result;
+import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;

@@ -10,11 +10,7 @@ import lombok.experimental.Accessors;
 @JsonPropertyOrder({"type", "data"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MessageDTO {
-
     private Integer type;
 
     private Object data;
-
-
-
 }

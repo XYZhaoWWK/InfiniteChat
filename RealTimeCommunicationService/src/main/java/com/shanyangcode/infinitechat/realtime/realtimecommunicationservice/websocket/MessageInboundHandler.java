@@ -74,6 +74,13 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
         log.info("websocket has build");
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        offline(ctx);
+
+        super.channelInactive(ctx);
+    }
+
 //    完成协议升级以及心跳断了时触发这个
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -99,7 +106,8 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
             String userUuid = NettyUtils.getAttr(ctx.channel(), NettyUtils.UID);
 
             if(!validateToken(userUuid, token)){
-                log.info("Token invalid");
+
+                 log.info("Token invalid");
                 ctx.close();
                 return;
             }
@@ -144,6 +152,17 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause){
+        log.error("捕获到异常：", cause);
+
+        try {
+            offline(ctx);
+        }catch (Exception e){
+            log.error("关闭管道失败", e);
+        }
     }
 
 }
