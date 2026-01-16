@@ -1,5 +1,8 @@
 package com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.websocket;
 
+import com.alibaba.cloud.nacos.NacosServiceManager;
+import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.api.naming.NamingService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -16,25 +19,43 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.NettyRuntime;
+import io.netty.util.concurrent.Future;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Configuration;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @Configuration
+@RequiredArgsConstructor
 @Slf4j
 public class NettyServer {
 
     @Value("${netty.port}")
     private int port;
 
+    @Value("${netty.name}")
+    private String serverName;
+
+    @Autowired
+    private NacosServiceManager nacosServiceManager;
+
+    private final DiscoveryClient discoveryClient;
+
     private EventLoopGroup bossGroup = new NioEventLoopGroup(1);
 
     private EventLoopGroup workerGroup = new NioEventLoopGroup(NettyRuntime.availableProcessors());
 
     @PostConstruct
-    public void start() throws InterruptedException {
+    public void start() throws InterruptedException, UnknownHostException, NacosException {
         run();
+        NamingService namingService = nacosServiceManager.getNamingService();
+        namingService.registerInstance(serverName, InetAddress.getLocalHost().getHostAddress(), this.port);
         log.info("Netty Server Success");
     }
 
@@ -61,6 +82,15 @@ public class NettyServer {
 
         serverBootstrap.bind(port).sync();
 
+    }
+
+    @PreDestroy
+    public void destroy() throws InterruptedException {
+        Future<?> future = bossGroup.shutdownGracefully();
+        Future<?> future1 = workerGroup.shutdownGracefully();
+        future.syncUninterruptibly();
+        future1.syncUninterruptibly();
+        log.info("NettyServer shutdown");
     }
 
 }

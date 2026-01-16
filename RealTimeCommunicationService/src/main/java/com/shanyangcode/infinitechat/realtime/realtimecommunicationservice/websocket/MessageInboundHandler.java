@@ -106,8 +106,7 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
             String userUuid = NettyUtils.getAttr(ctx.channel(), NettyUtils.UID);
 
             if(!validateToken(userUuid, token)){
-
-                 log.info("Token invalid");
+                log.info("Token invalid");
                 ctx.close();
                 return;
             }
