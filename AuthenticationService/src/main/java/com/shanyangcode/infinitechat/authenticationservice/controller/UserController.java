@@ -1,6 +1,4 @@
 package com.shanyangcode.infinitechat.authenticationservice.controller;
-
-
 import com.shanyangcode.infinitechat.authenticationservice.common.Result;
 import com.shanyangcode.infinitechat.authenticationservice.data.user.login.LoginRequest;
 import com.shanyangcode.infinitechat.authenticationservice.data.user.login.LoginResponse;

@@ -2,6 +2,7 @@ package com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.webs
 
 import cn.hutool.json.JSONUtil;
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.constants.MessageTypeEnum;
+import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.constants.UserConstants;
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.excption.MessageTypeException;
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.model.AckData;
 import com.shanyangcode.infinitechat.realtime.realtimecommunicationservice.model.LogOutData;
@@ -17,11 +18,19 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+import java.net.InetAddress;
 
 @Slf4j
 @Sharable
+@AllArgsConstructor
 public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+
+    private StringRedisTemplate redisTemplate;
+
 //    客户端发一条聊天json时触发这个
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
@@ -110,6 +119,9 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
                 ctx.close();
                 return;
             }
+            String hostAddress = InetAddress.getLocalHost().getHostAddress();
+            redisTemplate.opsForValue().set(UserConstants.USER_SESSION + userUuid, hostAddress);
+
 
 // 存储用户的管道信息
             Channel channel = ChannelManager.getChannelByUserId(userUuid);
@@ -141,6 +153,7 @@ public class MessageInboundHandler extends SimpleChannelInboundHandler<TextWebSo
             if(ctx.channel() != null){
                 ctx.channel().close();
             }
+            redisTemplate.opsForValue().getAndDelete(UserConstants.USER_SESSION + userUuid);
         }
     }
 
