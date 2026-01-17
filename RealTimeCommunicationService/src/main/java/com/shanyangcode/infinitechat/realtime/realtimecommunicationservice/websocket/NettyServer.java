@@ -26,9 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetAddress;
@@ -44,9 +41,6 @@ public class NettyServer {
 
     @Value("${netty.name}")
     private String serverName;
-
-    @Autowired
-    private StringRedisTemplate redisTemplate;
 
     @Autowired
     private NacosServiceManager nacosServiceManager;
@@ -81,8 +75,8 @@ public class NettyServer {
                         pipeline.addLast(new ChunkedWriteHandler());
                         pipeline.addLast(new HttpObjectAggregator(8192));
                         pipeline.addLast(new WebSocketTokenAuthHead());
-                        pipeline.addLast(new WebSocketServerProtocolHandler("/api/v1/netty"));
-                        pipeline.addLast(new MessageInboundHandler(redisTemplate));
+                        pipeline.addLast(new WebSocketServerProtocolHandler("/"));
+                        pipeline.addLast(new MessageInboundHandler());
                     }
                 });
 
