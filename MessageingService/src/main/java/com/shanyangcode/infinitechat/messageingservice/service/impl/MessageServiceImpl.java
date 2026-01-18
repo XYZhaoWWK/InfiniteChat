@@ -51,7 +51,7 @@ import static cn.hutool.core.date.DateUtil.formatDate;
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
 
     private static final int STATUS_ACTIVE = 1;
-    private static final String DEFAULT_SESSION_AVATAR = "http://47.115.130.44/img/avatar/IM_GROUP.jpg";
+    private static final String DEFAULT_SESSION_AVATAR = "http://121.4.37.85:9000/infinite-chat/202512252256.png";
     private static final long KEEP_ALIVE_TIME = 60L; // 60秒
     private static final int QUEUE_CAPACITY = 100;
 
