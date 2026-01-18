@@ -31,19 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-# IDEA
-.idea/
-*.iml
-
-# Maven
-target/
-
-# Gradle
-build/
-
-# Logs
-*.log
-
-# OS
-.DS_Store
