@@ -6,7 +6,7 @@ spring:
       server-addr: 127.0.0.1:18375
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://121.4.37.85:3306/infiniteChat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://121.4.37.85:3306/infinitechat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: InfiniteChat
     password: 123456
     hikari:

@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public enum ConfigEnum {
 
-
+    TOKEN_SECRET_KEY("tokenSecretKey","goat"),
     WX_STATE("wxState","goat"),
     WORKED_ID("workedId","1"),
     DATACENTER_ID("DATACENTER_ID","1"),
